@@ -1,0 +1,14 @@
+spacy>=3.0
+dateparser
+python-dateutil
+python-dotenv
+streamlit
+# NLP & LLM
+openai
+# existing ones (restate for completeness)
+numpy
+pydub
+soundfile
+openai-whisper
+pyannote.audio>=2.0
+pytest
