@@ -1,8 +1,3 @@
-Perfect. Here’s a **complete production-grade `README.md`** for your **CRUX** project — fully aligned with the entire system (all modules: audio → transcription → diarization → NLP extraction → Notion sync → Streamlit dashboard).
-
-You can drop this file at the root of your `crux/` folder.
-
----
 
 # 🧠 CRUX — Automated Meeting Minutes → Notion Dashboard System
 
