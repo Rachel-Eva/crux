@@ -254,7 +254,7 @@ To deploy CRUX:
 ## 👨‍💻 Contributors
 
 * **Vibhu** — Researcher & Lead Developer
-* **ChatGPT (GPT-5)** — Code & Architecture Co-Design
+
 
 ---
 
