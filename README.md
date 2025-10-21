@@ -24,30 +24,20 @@ CRUX streamlines how teams record, understand, and act on meetings.
 ## 📁 Folder Structure
 
 ```
-crux/
+crux/  (repo root)
 │
-├── main/
-│   ├── audio_input.py          # Audio upload & preprocessing
-│   ├── speech_to_text.py       # Whisper transcription
-│   ├── speaker_id.py           # Speaker diarization
-│   ├── nlp_extraction.py       # LLM-based task extraction
-│   ├── notion_sync.py          # Syncs output to Notion dashboard
-│   ├── dashboard_ui.py         # Streamlit UI for interactive use
-│   └── crux_main.py            # Full pipeline orchestration
-│
-├── tests/
-│   ├── test_audio_input.py
-│   ├── test_speech_to_text.py
-│   ├── test_speaker_id.py
-│   ├── test_nlp_extraction.py
-│   └── test_notion_sync.py
-│
-├── assets/
-│   ├── sample_audio/
-│   └── icons/
-│
+├── audio_input.py
+├── crux_main.py
+├── dashboard_ui.py
+├── nlp_extraction.py
+├── notion_sync.py
+├── speech_to_text.py
+├── speaker_id.py
 ├── requirements.txt
-└── README.md
+├── .env.example
+├── README.md
+├── examples/
+└── tests/
 ```
 
 ---
