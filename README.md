@@ -261,7 +261,3 @@ To deploy CRUX:
 ## 📄 License
 
 MIT License © 2025 CRUX Team
-
----
-
-Would you like me to also generate the **`requirements.txt`** file next (pinned versions for all dependencies, tested on Python 3.10)?
