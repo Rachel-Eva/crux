@@ -57,7 +57,7 @@ crux/
 ### 1️⃣ **Clone Repository**
 
 ```bash
-git clone https://github.com/yourusername/crux.git
+git clone -b master https://github.com/yourusername/crux.git
 cd crux
 ```
 
