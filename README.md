@@ -80,8 +80,15 @@ NOTION_DATABASE_ID=your_database_id
 >
 > * **OpenAI Key:** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 > * **Notion Integration Secret:** [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations)
-> * **Database ID:** from your Notion page URL after `/`
-
+>   After creating your integration, go to the **Access** tab, click **“Add pages”**, and select the page or database you want the integration to access.
+> * **Database ID:** open the database in full-page view and copy the part of the URL **after the last `/` and before any `?`**.  
+>   Example:  
+>   ```
+>   https://www.notion.so/YourWorkspace/abcd1234efgh5678ijkl9012?v=mnop3456qrst
+>   ```
+>   → Database ID: `abcd1234efgh5678ijkl9012`
+>
+> ⚠️ Make sure you’re selecting a **full-page database**, not a database block inside another page, otherwise the integration won’t have access.
 ---
 
 ## 🧠 How It Works (Pipeline Flow)
