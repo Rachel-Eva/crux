@@ -156,13 +156,13 @@ Output example:
 ### Option 1 — Full Streamlit Dashboard
 
 ```bash
-streamlit run main/dashboard_ui.py
+streamlit run dashboard_ui.py
 ```
 
 ### Option 2 — Run the Full Pipeline
 
 ```bash
-python main/crux_main.py --audio "assets/sample_audio/team_meeting.wav"
+python crux_main.py --audio "assets/sample_audio/team_meeting.wav"
 ```
 
 ---
