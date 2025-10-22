@@ -7,7 +7,7 @@ Responsibilities:
 - Provide helpers to read audio and export normalized temp file path
 
 Dependencies:
-- pydub (requires ffmpeg on PATH)
+- ffmpeg and ffprobe (must be on system PATH)
 - soundfile
 - numpy
 
@@ -19,12 +19,13 @@ Exports:
 Usage (CLI):
 python audio_input.py tests/data/sample_short.mp3
 """
+
 import os
 import tempfile
+import subprocess
 from typing import Tuple, Optional, Dict
 
 import numpy as np
-from pydub import AudioSegment
 import soundfile as sf
 
 MAX_DURATION_SECONDS = 3 * 60 * 60  # 3 hours upper bound
@@ -36,49 +37,71 @@ class AudioProcessingError(Exception):
 
 def validate_audio_file(path: str) -> Dict:
     """
-    Validate audio exists and return basic metadata.
+    Validate audio exists and return basic metadata using ffprobe.
 
-    Returns: {path, channels, sample_rate, duration_seconds, frame_width}
+    Returns: {path, channels, sample_rate, duration_seconds}
     Raises AudioProcessingError on problems.
     """
     if not os.path.isfile(path):
         raise AudioProcessingError(f"File not found: {path}")
 
     try:
-        audio = AudioSegment.from_file(path)
+        cmd = [
+            "ffprobe", "-v", "error",
+            "-select_streams", "a:0",
+            "-show_entries", "stream=channels,sample_rate,duration",
+            "-of", "default=noprint_wrappers=1:nokey=0",
+            path
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        lines = result.stdout.strip().splitlines()
+        info = {}
+        for line in lines:
+            if "=" in line:
+                key, val = line.split("=", 1)
+                info[key.strip()] = val.strip()
+
+        duration = float(info.get("duration", 0))
+        if duration <= 0:
+            raise AudioProcessingError("Audio duration is zero.")
+        if duration > MAX_DURATION_SECONDS:
+            raise AudioProcessingError(f"Audio too long: {duration:.1f}s")
+
+        return {
+            "path": path,
+            "channels": int(info.get("channels", 1)),
+            "sample_rate": int(info.get("sample_rate", 16000)),
+            "duration_seconds": duration,
+        }
+
     except Exception as e:
-        raise AudioProcessingError(f"Could not open audio file: {e}")
-
-    duration_s = len(audio) / 1000.0
-    if duration_s <= 0:
-        raise AudioProcessingError("Audio duration is zero.")
-    if duration_s > MAX_DURATION_SECONDS:
-        raise AudioProcessingError(f"Audio too long: {duration_s:.1f}s")
-
-    return {
-        "path": path,
-        "channels": audio.channels,
-        "sample_rate": audio.frame_rate,
-        "duration_seconds": duration_s,
-        "frame_width": audio.sample_width,
-    }
+        raise AudioProcessingError(f"Failed to validate audio: {e}")
 
 
 def normalize_audio_to_wav(src_path: str, dst_path: Optional[str] = None, target_sr: int = 16000) -> str:
     """
-    Convert audio to WAV, target sample rate, mono.
+    Convert audio to WAV, target sample rate, mono using ffmpeg.
     Returns path to created WAV file.
     """
+    if not os.path.exists(src_path):
+        raise AudioProcessingError(f"Audio file not found: {src_path}")
+
     if dst_path is None:
         fd, dst_path = tempfile.mkstemp(suffix=".wav")
         os.close(fd)
 
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", src_path,
+        "-ar", str(target_sr),
+        "-ac", "1",
+        dst_path
+    ]
+
     try:
-        audio = AudioSegment.from_file(src_path)
-        audio = audio.set_frame_rate(target_sr).set_channels(1)
-        audio.export(dst_path, format="wav")
-    except Exception as e:
-        raise AudioProcessingError(f"Failed to normalize audio: {e}")
+        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        raise AudioProcessingError(f"ffmpeg failed to normalize audio: {e.stderr.decode()}")
 
     return dst_path
 

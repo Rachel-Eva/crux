@@ -1,30 +1,14 @@
-# `dashboard_ui.py` (Streamlit)
-"""python
-
-dashboard_ui.py
-
-Streamlit UI for CRUX:
-- Upload audio file or pick an example
-- Run pipeline (calls crux_main.process_audio_file)
-- Display transcript, speaker-labeled blocks, and extracted tasks
-- "Sync to Notion" button (calls a stub function or notion_sync when available)
-
-How to run:
-streamlit run dashboard_ui.py
-"""
 import streamlit as st
 import os
 import json
 from pathlib import Path
-from typing import Any
 
 # Try to import the pipeline
 try:
     from crux_main import process_audio_file
 except Exception:
-    # If you're running this file directly inside main/ folder, adapt import:
     try:
-        from main.crux_main import process_audio_file  # optional path
+        from crux_main import process_audio_file  # optional path
     except Exception:
         process_audio_file = None
 
@@ -35,16 +19,15 @@ st.title("CRUX — Meeting Minutes → Notion")
 st.sidebar.header("Settings")
 stt_backend = st.sidebar.selectbox("STT backend", options=["local", "openai"], index=0)
 diarize_backend = st.sidebar.selectbox("Diarization backend", options=["simple", "pyannote"], index=0)
-use_llm_nlp = st.sidebar.checkbox("Use LLM fallback for NLP", value=False)
+# Removed: use_llm_nlp checkbox
 
 st.markdown("Upload an audio file (mp3/wav) or choose an example in `assets/sample_audio/`.")
 
-uploaded = st.file_uploader("Upload audio", type=["wav", "mp3", "m4a"], accept_multiple_files=False)
+uploaded = st.file_uploader("Upload audio", type=["wav", "mp3", "m4a", "mp4"], accept_multiple_files=False)
 
 col1, col2 = st.columns([1, 1])
 
 if uploaded:
-    # save uploaded file to a temp path
     temp_dir = Path(".crux_tmp")
     temp_dir.mkdir(exist_ok=True)
     src_path = str(temp_dir / uploaded.name)
@@ -67,9 +50,10 @@ if src_path and st.button("Run CRUX pipeline"):
     else:
         with st.spinner("Processing audio..."):
             try:
-                meeting = process_audio_file(src_path, stt_backend=stt_backend, diarize_backend=diarize_backend, use_llm_for_nlp=use_llm_nlp)
+                # Removed 'use_llm_for_nlp' argument here
+                meeting = process_audio_file(src_path, stt_backend=stt_backend, diarize_backend=diarize_backend)
                 st.success("Processing complete.")
-                # Show outputs
+                
                 st.subheader("Transcript")
                 st.text_area("Full transcript", value=meeting.get("Transcript",""), height=200)
 
@@ -87,7 +71,6 @@ if src_path and st.button("Run CRUX pipeline"):
                 else:
                     st.info("No tasks extracted.")
 
-                # Save JSON
                 out_path = Path(".crux_outputs")
                 out_path.mkdir(exist_ok=True)
                 fname = out_path / f"{Path(src_path).stem}_meeting.json"
@@ -95,7 +78,6 @@ if src_path and st.button("Run CRUX pipeline"):
                     json.dump(meeting, fh, indent=2)
                 st.write(f"Saved meeting JSON to `{fname}`")
 
-                # Sync button (stub)
                 if st.button("Sync to Notion"):
                     st.info("Notion sync not implemented in this demo. Implement notion_sync.py and call it here.")
 
